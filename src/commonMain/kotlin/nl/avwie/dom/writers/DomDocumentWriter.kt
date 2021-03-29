@@ -21,7 +21,7 @@ class DomDocumentWriter(val document: DomDocumentAdapter) : Writer {
     }
 
     override fun beginElementNS(namespace: String, name: String) {
-        document.createElementNS(namespace, name).also { element ->
+        document.createElement(name, namespace).also { element ->
             stack.prepend(element)
             if (stack.size == 1) {
                 root = element

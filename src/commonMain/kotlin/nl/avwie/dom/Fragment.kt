@@ -15,3 +15,18 @@ interface Fragment<Context : BuilderContext<Context>> {
         }
     }
 }
+
+interface XMLFragment : Fragment<XMLBuilderContext> {
+    companion object {
+        operator fun invoke(block: XMLBuilderContext.() -> Unit) = object : XMLFragment {
+            override val block: XMLBuilderContext.() -> Unit = block
+        }
+    }
+}
+interface SVGFragment : Fragment<SVGBuilderContext> {
+    companion object {
+        operator fun invoke(block: SVGBuilderContext.() -> Unit) = object : SVGFragment {
+            override val block: SVGBuilderContext.() -> Unit = block
+        }
+    }
+}

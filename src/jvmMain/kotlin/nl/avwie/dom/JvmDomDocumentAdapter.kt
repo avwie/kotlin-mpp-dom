@@ -6,7 +6,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class JvmDomDocumentAdapter(val document: Document) : DomDocumentAdapter {
 
-    class JVMDomElement(val inner: Element) : DomDocumentAdapter.Element {
+    class JvmDomElement(val inner: Element) : DomDocumentAdapter.Element {
         override fun setAttribute(key: String, value: String) {
             inner.setAttribute(key, value)
         }
@@ -16,7 +16,7 @@ class JvmDomDocumentAdapter(val document: Document) : DomDocumentAdapter {
         }
 
         override fun appendChild(element: DomDocumentAdapter.Element) {
-            inner.appendChild((element as JVMDomElement).inner)
+            inner.appendChild((element as JvmDomElement).inner)
         }
 
         override fun setText(text: String) {
@@ -26,16 +26,28 @@ class JvmDomDocumentAdapter(val document: Document) : DomDocumentAdapter {
         override fun setHTML(html: String) {
             inner.textContent = html
         }
+
+        override fun removeChild(element: DomDocumentAdapter.Element) {
+            inner.removeChild((element as JvmDomElement).inner)
+        }
     }
 
-    override fun createElement(name: String): DomDocumentAdapter.Element {
-        val element = document.createElement(name)
-        return JVMDomElement(element)
+    override fun createElement(name: String, namespace: String?): DomDocumentAdapter.Element {
+        val element = namespace?.let { document.createElementNS(namespace, name) } ?: document.createElement(name)
+        return JvmDomElement(element)
     }
 
-    override fun createElementNS(namespace: String, name: String): DomDocumentAdapter.Element {
-        val element = document.createElementNS(namespace, name)
-        return JVMDomElement(element)
+    override fun getElementById(id: String): DomDocumentAdapter.Element? {
+        return document.getElementById(id)?.let { JvmDomElement(it) }
+    }
+
+    override  fun getElementsByTagName(name: String, namespace: String?): List<DomDocumentAdapter.Element> {
+        val nodes = namespace?.let { document.getElementsByTagNameNS(namespace, name) } ?: document.getElementsByTagName(name)
+        val elements = mutableListOf<JvmDomElement>()
+        for (i in 0 until nodes.length) {
+            elements.add(JvmDomElement(nodes.item(i) as Element))
+        }
+        return elements
     }
 
     companion object {
